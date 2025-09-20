@@ -26,7 +26,6 @@
   },
   "files.insertFinalNewline": true,
   "files.trimTrailingWhitespace": true,
-  "editor.renderWhitespace": "all",
   "workbench.editor.enablePreview": true,
   "gitdoc.enabled": true
 }
