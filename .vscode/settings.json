@@ -11,10 +11,10 @@
     "other": "on",
     "strings": "off"
   },
+  "editor.suggestOnTriggerCharacters": true,
   "C_Cpp.autocomplete": "Default",
   "C_Cpp.errorSquiggles": "enabled",
   "C_Cpp.codeFolding": "enabled",
-  "python.linting.enabled": true,
   "java.debug.settings.enableRunDebugCodeLens": true,
   "java.inlayHints.parameterNames.enabled": "all",
   "java.referencesCodeLens.enabled": true,
