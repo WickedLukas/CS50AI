@@ -51,6 +51,9 @@ def result(board, action):
     """
     Returns the board that results from making move (i, j) on the board.
     """
+    for i in range(2):
+        if action[i] < 0 or action[i] > 2:
+            raise ValueError
     if board[action[0]][action[1]] != EMPTY:
         raise ValueError
 
