@@ -107,26 +107,46 @@ def utility(board):
         return 0
 
 
-def min_value(board):
+def min_value(board, last_min=-1):
     if terminal(board):
         return utility(board)
 
-    value = 1
-    for action in actions(board):
-        value = min(value, max_value(result(board, action)))
+    board_actions = actions(board)
+    action = board_actions.pop()
+    result_value = max_value(result(board, action))
 
-    return value
+    if (result_value <= last_min):
+        return result_value
+
+    for action in board_actions:
+        value = min(result_value, max_value(result(board, action)), result_value)
+        if value < result_value:
+            result_value = value
+            if (result_value <= last_min):
+                return result_value
+
+    return result_value
 
 
-def max_value(board):
+def max_value(board, last_max=1):
     if terminal(board):
         return utility(board)
 
-    value = -1
-    for action in actions(board):
-        value = max(value, min_value(result(board, action)))
+    board_actions = actions(board)
+    action = board_actions.pop()
+    result_value = min_value(result(board, action))
 
-    return value
+    if (result_value >= last_max):
+        return result_value
+
+    for action in board_actions:
+        value = max(result_value, min_value(result(board, action)), result_value)
+        if value > result_value:
+            result_value = value
+            if (result_value >= last_max):
+                return result_value
+
+    return result_value
 
 
 def minimax(board):
@@ -137,23 +157,30 @@ def minimax(board):
         return None
 
     board_actions = actions(board)
-
     result_action = board_actions.pop()
     if player(board) == X:
         result_value = min_value(result(board, result_action))
+        if (result_value == 1):
+            return result_action
     else:
         result_value = max_value(result(board, result_action))
+        if (result_value == -1):
+            return result_action
 
     for action in board_actions:
         if player(board) == X:
-            value = min_value(result(board, action))
+            value = min_value(result(board, action), result_value)
             if value > result_value:
                 result_value = value
                 result_action = action
+                if (result_value == 1):
+                    return result_action
         else:
-            value = max_value(result(board, action))
+            value = max_value(result(board, action), result_value)
             if value < result_value:
                 result_value = value
                 result_action = action
+                if (result_value == -1):
+                    return result_action
 
     return result_action
