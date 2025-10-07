@@ -195,29 +195,19 @@ class MinesweeperAI():
         self.moves_made.add(cell)
         self.mark_safe(cell)
 
-        neighbours = set()
+        neighbors = set()
         for i in range(cell[0] - 1, cell[0] + 2):
             for j in range(cell[1] - 1, cell[1] + 2):
                 if (i, j) == cell:
                     continue
 
                 if 0 <= i < self.height and 0 <= j < self.width:
-                    neighbour = (i, j)
-                    if neighbour in self.mines:
+                    neighbor = (i, j)
+                    if neighbor in self.mines:
                         count -= 1
-                    elif neighbour not in self.safes:
-                        neighbours.add(neighbour)
-
-        sentence = Sentence(neighbours, count)
-        safes = sentence.known_safes()
-        mines = sentence.known_mines()
-
-        if len(safes) > 0:
-            self.safes |= safes
-        elif len(mines) > 0:
-            self.mines |= mines
-        else:
-            self.knowledge.append(Sentence(neighbours, count))
+                    elif neighbor not in self.safes:
+                        neighbors.add(neighbor)
+        self.knowledge.append(Sentence(neighbors, count))
 
         old_knowledge = None
         while True:
@@ -232,8 +222,8 @@ class MinesweeperAI():
             knowledge_length = len(self.knowledge)
             for i in range(knowledge_length):
                 for j in range(i + 1, knowledge_length):
-                    if self.knowledge[j].count < self.knowledge[i].count:
-                        if self.knowledge[j].cells < self.knowledge[i].cells:
+                    if self.knowledge[j].count <= self.knowledge[i].count:
+                        if self.knowledge[j].cells <= self.knowledge[i].cells:
                             self.knowledge.append(Sentence(self.knowledge[i].cells - self.knowledge[j].cells,
                                                            self.knowledge[i].count - self.knowledge[j].count))
                             delete_indices.append(i)
@@ -242,8 +232,6 @@ class MinesweeperAI():
                             self.knowledge.append(Sentence(self.knowledge[j].cells - self.knowledge[i].cells,
                                                           self.knowledge[j].count - self.knowledge[i].count))
                             delete_indices.append(j)
-                    elif self.knowledge[i].cells == self.knowledge[j].cells:
-                        delete_indices.append(j)
 
             for i in sorted(delete_indices, reverse=True):
                 del self.knowledge[i]
