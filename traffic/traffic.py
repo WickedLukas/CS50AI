@@ -1,10 +1,13 @@
 import cv2
 import numpy as np
 import os
+#os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 import sys
 import tensorflow as tf
+import keras
 
 from sklearn.model_selection import train_test_split
+from pathlib import Path
 
 EPOCHS = 10
 IMG_WIDTH = 30
@@ -58,7 +61,19 @@ def load_data(data_dir):
     be a list of integer labels, representing the categories for each of the
     corresponding `images`.
     """
-    raise NotImplementedError
+    category_dirs = [d for d in Path(data_dir).iterdir() if d.is_dir()]
+    images = []
+    labels = []
+    image_buffer = np.zeros((1000, 1000, 3), dtype=np.uint8)
+    for category_dir in category_dirs:
+        image_files = [f.resolve() for f in category_dir.iterdir() if f.is_file() and f.suffix == ".ppm"]
+        for image_file in image_files:
+            image_buffer = cv2.imread(image_file)
+            image = cv2.resize(image_buffer, (IMG_WIDTH, IMG_HEIGHT), interpolation=cv2.INTER_CUBIC)
+            images.append(image)
+            labels.append(category_dir.name)
+
+    return images, labels
 
 
 def get_model():
@@ -67,7 +82,25 @@ def get_model():
     `input_shape` of the first layer is `(IMG_WIDTH, IMG_HEIGHT, 3)`.
     The output layer should have `NUM_CATEGORIES` units, one for each category.
     """
-    raise NotImplementedError
+    model = keras.models.Sequential([
+        keras.layers.Rescaling(1./255, input_shape=(IMG_WIDTH, IMG_HEIGHT, 3)),
+        keras.layers.Conv2D(32, (3, 3), activation="relu", padding="same"),
+        keras.layers.MaxPooling2D(pool_size=(2, 2)),
+        keras.layers.Conv2D(32, (3, 3), activation="relu", padding="same"),
+        keras.layers.MaxPooling2D(pool_size=(2, 2)),
+        keras.layers.Flatten(),
+        keras.layers.Dense(1024, activation="relu"),
+        keras.layers.Dropout(0.4),
+        keras.layers.Dense(NUM_CATEGORIES, activation="softmax")
+    ])
+
+    model.compile(
+        optimizer="adam",
+        loss="categorical_crossentropy",
+        metrics=["accuracy"]
+    )
+
+    return model
 
 
 if __name__ == "__main__":
